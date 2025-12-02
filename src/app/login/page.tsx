@@ -26,7 +26,31 @@ export default function LoginPage() {
                 redirect: false,
             })
 
+            console.log("SignIn Result:", result)
+
             if (result?.error) {
+                // Check if it's an unverified email issue
+                const checkRes = await fetch("/api/auth/check-verification", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email }),
+                })
+
+                if (checkRes.ok) {
+                    const { verified } = await checkRes.json()
+                    if (!verified) {
+                        // Email not verified, send OTP and redirect
+                        await fetch("/api/auth/resend-otp", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ email }),
+                        })
+
+                        router.push(`/otp-verification?email=${encodeURIComponent(email)}`)
+                        return
+                    }
+                }
+
                 setError("Invalid email or password")
             } else {
                 router.push("/events")
@@ -81,7 +105,7 @@ export default function LoginPage() {
                             />
                         </div>
                         {error && (
-                            <div className="bg-red-50 text-red-600 text-sm p-3 rounded-md">
+                            <div className="bg-red-50 text-red-600 text-sm p-3 rounded-md break-words">
                                 {error}
                             </div>
                         )}
@@ -90,6 +114,12 @@ export default function LoginPage() {
                         </Button>
                     </form>
                 </CardContent>
+                <div className="px-6 pb-6 text-center text-sm">
+                    Don&apos;t have an account?{" "}
+                    <a href="/register" className="text-blue-600 hover:underline">
+                        Sign up
+                    </a>
+                </div>
             </Card>
         </div>
     )

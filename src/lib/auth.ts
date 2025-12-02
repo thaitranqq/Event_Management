@@ -1,8 +1,12 @@
-import NextAuth from "next-auth"
+import NextAuth, { CredentialsSignin } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { z } from "zod"
+
+class UnverifiedEmailError extends CredentialsSignin {
+    code = "UNVERIFIED_EMAIL"
+}
 
 const loginSchema = z.object({
     email: z.string().email(),
@@ -10,6 +14,12 @@ const loginSchema = z.object({
 })
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+    // Ensure a secret is provided. Auth.js requires a `secret`.
+    // Read from `NEXTAUTH_SECRET` or `AUTH_SECRET`. In development, fall back
+    // to an insecure dev secret so the app keeps working locally.
+    secret:
+        process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET ||
+        (process.env.NODE_ENV !== "production" ? "insecure-dev-secret" : undefined),
     providers: [
         Credentials({
             credentials: {
@@ -37,6 +47,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
                 if (!isValidPassword) {
                     return null
+                }
+
+                if (!user.emailVerified) {
+                    throw new CredentialsSignin("UNVERIFIED_EMAIL")
                 }
 
                 return {
