@@ -1,0 +1,22 @@
+@startuml
+title Event Management - Context Diagram
+
+actor "Browser / Mobile Client" as Client
+package "Next.js App" {
+  node "Frontend + API routes" as NextApp
+}
+database "PostgreSQL (DB)" as DB
+cloud "External Services\nAuth / Email / SMS" as External
+component "Prisma Client" as Prisma
+
+Client --> NextApp : HTTPS
+NextApp --> Prisma : ORM calls
+Prisma --> DB : SQL
+NextApp --> External : Auth / Email
+
+note right of NextApp
+  Hosts server-rendered pages
+  and API routes
+end note
+
+@enduml

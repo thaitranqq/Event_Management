@@ -165,6 +165,27 @@ Appendix / Next steps
 - Consider adding a sequence diagram for check-in and registration if you need more detail.
 - If you'd like, I can generate PNG/SVG diagrams from these ASCII diagrams using PlantUML and add them to the `DOCUMENTATION/` folder.
 
+Diagrams (PlantUML sources) have been added to `DOCUMENTATION/diagrams/`:
+
+- `context.puml` — Context Diagram
+- `usecases.puml` — Use Case Diagram
+- `registration_flow.puml` — Registration sequence
+- `checkin_flow.puml` — Check-in sequence
+- `edit_event_flow.puml` — Edit event sequence
+
+To render these to images locally (requires PlantUML + Java):
+
+```powershell
+# from repository root
+cd DOCUMENTATION/diagrams
+# render PNG
+plantuml *.puml
+# render SVG
+plantuml -tsvg *.puml
+```
+
+Or use an online PlantUML renderer or the `plantuml` VS Code extension to preview and export.
+
 ---
 
 Document created on: 2025-12-02

@@ -1,0 +1,24 @@
+@startuml
+left to right direction
+title Use Case: Event Management - High level
+
+actor Admin
+actor Staff
+actor Student
+
+rectangle "Event Management System" {
+  usecase "Create/Edit/Delete Event" as UC1
+  usecase "Manage Speakers & Venues" as UC2
+  usecase "Register for Event" as UC3
+  usecase "Check-in Attendee" as UC4
+  usecase "View Reports" as UC5
+}
+
+Admin --> UC1
+Admin --> UC2
+Admin --> UC5
+Student --> UC3
+Staff --> UC4
+Admin --> UC4
+
+@enduml

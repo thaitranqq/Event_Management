@@ -1,0 +1,22 @@
+@startuml
+title Edit Event Activity
+
+actor Admin
+participant "Edit Form (client)" as Client
+participant "/api/events/:id (PUT)" as API
+participant "Prisma / PostgreSQL" as DB
+
+Admin -> Client : Open Edit page
+Client -> API : GET /api/events/:id (prefill)
+API -> DB : SELECT event
+DB --> API : event data
+API --> Client : event data
+Admin -> Client : Update fields and Submit
+Client -> API : PUT /api/events/:id {payload with ISO datetimes}
+API -> DB : UPDATE event
+DB --> API : updated event
+API --> Client : 200 OK
+Client -> Client : router.push(/events/:id)
+Client -> Client : router.refresh()
+
+@enduml
