@@ -1,0 +1,154 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  STAFF
+  STUDENT
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+}
+
+enum EventCategory {
+  TECHNOLOGY
+  BUSINESS
+  WORKSHOP
+  SEMINAR
+  NETWORKING
+  CAREER
+  SOCIAL
+  SPORTS
+  OTHER
+}
+
+enum RegistrationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum CheckInMethod {
+  QR_CODE
+  MANUAL
+}
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  password      String
+  name          String
+  role          UserRole       @default(STUDENT)
+  studentId     String?        @unique
+  image         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  
+  registrations Registration[]
+  checkins      CheckIn[]
+  
+  @@index([email])
+  @@index([role])
+}
+
+model Speaker {
+  id           String   @id @default(cuid())
+  name         String
+  bio          String?  @db.Text
+  title        String?
+  organization String?
+  photoUrl     String?
+  email        String?
+  phone        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  events       Event[]
+  
+  @@index([name])
+}
+
+model Venue {
+  id         String   @id @default(cuid())
+  name       String
+  address    String
+  capacity   Int
+  facilities String[]
+  imageUrl   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  events     Event[]
+  
+  @@index([name])
+}
+
+model Event {
+  id          String        @id @default(cuid())
+  title       String
+  description String        @db.Text
+  category    EventCategory @default(OTHER)
+  startDate   DateTime
+  endDate     DateTime
+  capacity    Int
+  imageUrl    String?
+  status      EventStatus   @default(DRAFT)
+  speakerId   String?
+  venueId     String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  speaker       Speaker?       @relation(fields: [speakerId], references: [id], onDelete: SetNull)
+  venue         Venue?         @relation(fields: [venueId], references: [id], onDelete: SetNull)
+  registrations Registration[]
+  checkins      CheckIn[]
+  
+  @@index([category])
+  @@index([status])
+  @@index([startDate])
+  @@index([endDate])
+}
+
+model Registration {
+  id           String             @id @default(cuid())
+  userId       String
+  eventId      String
+  status       RegistrationStatus @default(CONFIRMED)
+  qrCode       String             @unique
+  registeredAt DateTime           @default(now())
+  
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, eventId])
+  @@index([userId])
+  @@index([eventId])
+  @@index([status])
+}
+
+model CheckIn {
+  id          String         @id @default(cuid())
+  userId      String
+  eventId     String
+  method      CheckInMethod  @default(QR_CODE)
+  checkedInAt DateTime       @default(now())
+  
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, eventId])
+  @@index([eventId])
+  @@index([checkedInAt])
+}
