@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, MapPin, Clock, QrCode } from "lucide-react"
 import { formatDateTime } from "@/lib/utils"
+import { useRouter } from "next/navigation"
+import ConfirmDialog from "@/components/ConfirmDialog"
 
 interface Registration {
     id: string
@@ -29,6 +31,9 @@ interface Registration {
 export default function RegistrationsPage() {
     const [registrations, setRegistrations] = useState<Registration[]>([])
     const [loading, setLoading] = useState(true)
+    const router = useRouter()
+    const [confirmOpen, setConfirmOpen] = useState(false)
+    const [pendingCancelId, setPendingCancelId] = useState<string | null>(null)
 
     useEffect(() => {
         fetchRegistrations()
@@ -44,6 +49,35 @@ export default function RegistrationsPage() {
         } finally {
             setLoading(false)
         }
+    }
+
+    const openCancelDialog = (id: string) => {
+        console.log("openCancelDialog", id)
+        setPendingCancelId(id)
+        setConfirmOpen(true)
+    }
+
+    const performCancel = async () => {
+        if (!pendingCancelId) return
+        try {
+            console.log("performCancel", pendingCancelId)
+            const res = await fetch(`/api/registrations/${pendingCancelId}`, { method: "DELETE" })
+            if (!res.ok) throw new Error("Failed to cancel")
+            setConfirmOpen(false)
+            setPendingCancelId(null)
+            // Refresh list
+            fetchRegistrations()
+            // Optionally refresh router to update counts
+            router.refresh()
+        } catch (error) {
+            console.error("Cancel failed:", error)
+            alert("Failed to cancel registration.")
+        }
+    }
+
+    const closeCancelDialog = () => {
+        setConfirmOpen(false)
+        setPendingCancelId(null)
     }
 
     const upcomingRegistrations = registrations.filter(
@@ -89,6 +123,7 @@ export default function RegistrationsPage() {
                                     <RegistrationCard
                                         key={registration.id}
                                         registration={registration}
+                                        onCancel={openCancelDialog}
                                     />
                                 ))}
                             </div>
@@ -105,18 +140,31 @@ export default function RegistrationsPage() {
                                     <RegistrationCard
                                         key={registration.id}
                                         registration={registration}
+                                        onCancel={openCancelDialog}
                                     />
                                 ))}
+
                             </div>
                         </div>
                     )}
                 </div>
             )}
+            <ConfirmDialog
+                open={confirmOpen}
+                title="Cancel Registration"
+                description="Are you sure you want to cancel this registration? This will free the slot for other attendees."
+                confirmLabel="Cancel registration"
+                cancelLabel="Keep ticket"
+                onConfirm={performCancel}
+                onCancel={closeCancelDialog}
+                loading={false}
+            />
+
         </div>
     )
 }
 
-function RegistrationCard({ registration }: { registration: Registration }) {
+function RegistrationCard({ registration, onCancel }: { registration: Registration; onCancel?: (id: string) => void }) {
     const getCategoryColor = (category: string) => {
         const colors: Record<string, string> = {
             TECHNOLOGY: "bg-blue-100 text-blue-700",
@@ -176,6 +224,15 @@ function RegistrationCard({ registration }: { registration: Registration }) {
                                 Event Details
                             </Button>
                         </Link>
+                        {onCancel && registration.status === "CONFIRMED" && (
+                            <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => onCancel(registration.id)}
+                            >
+                                Cancel Registration
+                            </Button>
+                        )}
                     </div>
                 </div>
             </CardContent>

@@ -7,11 +7,29 @@ actor Staff
 actor Student
 
 rectangle "Event Management System" {
-  usecase "Create/Edit/Delete Event" as UC1
-  usecase "Manage Speakers & Venues" as UC2
-  usecase "Register for Event" as UC3
-  usecase "Check-in Attendee" as UC4
-  usecase "View Reports" as UC5
+  skinparam usecase {
+    BackgroundColor<<implemented>> #ccffcc
+    BackgroundColor<<partial>> #fff4b2
+    BackgroundColor<<missing>> #ffd6d6
+  }
+
+  usecase "Browse Events" as UC_Browse <<implemented>>
+  usecase "View Event Details" as UC_View <<implemented>>
+  usecase "Register for Event\n(Generate QR, View Ticket)" as UC_Register <<implemented>>
+  usecase "Check-in Attendee\n(Scan QR / Manual)" as UC_Checkin <<implemented>>
+
+  usecase "Create Event" as UC_Create <<implemented>>
+  usecase "Edit Event" as UC_Edit <<implemented>>
+  usecase "Cancel / Hard Delete Event" as UC_Delete <<implemented>>
+
+  usecase "Manage Speakers & Venues" as UC_Speakers <<implemented>>
+
+  usecase "View Reports / Overview" as UC_Reports <<partial>>
+  usecase "Export Reports (CSV)" as UC_Export <<partial>>
+
+  usecase "Manage Capacity" as UC_ManageCapacity <<partial>>
+  usecase "Waiting List / Approve Waiting" as UC_Waitlist <<missing>>
+  usecase "Seat Management / View Seats" as UC_SeatMgmt <<missing>>
 }
 
 Admin --> UC1
