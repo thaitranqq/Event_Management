@@ -27,3 +27,32 @@ else
 end
 
 @enduml
+@startuml
+title Check-in Flow
+
+actor Staff
+participant "Check-in UI" as UI
+participant "/api/checkin" as API
+participant "Prisma / PostgreSQL" as DB
+
+Staff -> UI : Scan QR / Enter Code
+UI -> API : POST /api/checkin { qrCode }
+API -> DB : find registration by qrCode
+alt registration not found
+  DB --> API : null
+  API --> UI : 404 Invalid QR
+else
+  DB --> API : registration
+  API -> API : check time window (start - 1h <= now <= end)
+  alt not in window
+    API --> UI : 400 Check-in not available
+  else already checked in
+    API --> UI : 409 Already checked in
+  else
+    API -> DB : create checkIn record
+    DB --> API : checkIn
+    API --> UI : 200 Success
+  end
+end
+
+@enduml

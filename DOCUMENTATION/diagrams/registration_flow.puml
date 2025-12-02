@@ -14,3 +14,19 @@ API --> UI : 201 Created + registration id
 UI --> Student : Show ticket / QR code
 
 @enduml
+@startuml
+title Registration Flow
+
+actor Student
+participant "Web UI" as UI
+participant "Next.js API /api/registrations" as API
+participant "Prisma / PostgreSQL" as DB
+
+Student -> UI : Click Register
+UI -> API : POST /api/registrations { eventId }
+API -> DB : validate capacity, create registration, generate qrCode
+DB --> API : registration record
+API --> UI : 201 Created + registration id
+UI --> Student : Show ticket / QR code
+
+@enduml

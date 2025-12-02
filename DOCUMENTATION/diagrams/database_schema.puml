@@ -1,0 +1,107 @@
+@startuml
+title Database Schema - Event Management
+
+' Full schema generated from prisma/schema.prisma - includes types, PK/UQ and onDelete notes
+
+entity User {
+  id : String (PK)
+  email : String (UQ)
+  password : String
+  name : String
+  role : UserRole
+  studentId : String (UQ, nullable)
+  image : String (nullable)
+  createdAt : DateTime
+  updatedAt : DateTime
+}
+
+entity Speaker {
+  id : String (PK)
+  name : String
+  bio : Text (nullable)
+  title : String (nullable)
+  organization : String (nullable)
+  photoUrl : String (nullable)
+  email : String (nullable)
+  phone : String (nullable)
+  createdAt : DateTime
+  updatedAt : DateTime
+}
+
+entity Venue {
+  id : String (PK)
+  name : String
+  address : String
+  capacity : Int
+  facilities : String[]
+  imageUrl : String (nullable)
+  createdAt : DateTime
+  updatedAt : DateTime
+}
+
+entity Event {
+  id : String (PK)
+  title : String
+  description : Text
+  category : EventCategory
+  startDate : DateTime
+  endDate : DateTime
+  capacity : Int
+  imageUrl : String (nullable)
+  status : EventStatus
+  speakerId : String (FK, nullable)
+  venueId : String (FK, nullable)
+  createdAt : DateTime
+  updatedAt : DateTime
+}
+
+entity Registration {
+  id : String (PK)
+  userId : String (FK)
+  eventId : String (FK)
+  status : RegistrationStatus
+  qrCode : String (UQ)
+  registeredAt : DateTime
+}
+
+entity CheckIn {
+  id : String (PK)
+  userId : String (FK)
+  eventId : String (FK)
+  method : CheckInMethod
+  checkedInAt : DateTime
+}
+
+' Relations with onDelete behavior
+Registration }o--|| User : "userId (onDelete: Cascade)"
+Registration }o--|| Event : "eventId (onDelete: Cascade)"
+CheckIn }o--|| User : "userId (onDelete: Cascade)"
+CheckIn }o--|| Event : "eventId (onDelete: Cascade)"
+
+Event }o--|| Speaker : "speakerId (onDelete: SetNull)"
+Event }o--|| Venue : "venueId (onDelete: SetNull)"
+
+User ||--o{ Registration : "registrations"
+Event ||--o{ Registration : "registrations"
+User ||--o{ CheckIn : "checkins"
+Event ||--o{ CheckIn : "checkins"
+
+Speaker ||--o{ Event : "events"
+Venue ||--o{ Event : "events"
+
+note right of Registration
+  @@unique(userId, eventId)
+  indexes: userId, eventId, status
+end note
+
+note right of CheckIn
+  @@unique(userId, eventId)
+  indexes: eventId, checkedInAt
+end note
+
+note bottom
+  Enums: UserRole, EventStatus, EventCategory, RegistrationStatus, CheckInMethod
+  See prisma/schema.prisma for details.
+end note
+
+@enduml

@@ -1,0 +1,46 @@
+name: Render PlantUML diagrams
+
+on:
+  push:
+    paths:
+      - 'DOCUMENTATION/diagrams/**.puml'
+  workflow_dispatch: {}
+
+jobs:
+  render:
+    name: Render PlantUML to SVG
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install Graphviz
+        run: sudo apt-get update; sudo apt-get install -y graphviz
+
+      - name: Download PlantUML
+        run: |
+          mkdir -p tools
+          curl -L -o tools/plantuml.jar https://github.com/plantuml/plantuml/releases/latest/download/plantuml.jar
+
+      - name: Create images output directory
+        run: mkdir -p DOCUMENTATION/diagrams/images
+
+      - name: Render SVGs from .puml
+        working-directory: DOCUMENTATION/diagrams
+        run: |
+          java -jar ../tools/plantuml.jar -tsvg *.puml -o images || true
+
+      - name: List generated files
+        run: ls -la DOCUMENTATION/diagrams/images || true
+
+      - name: Upload SVG artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagrams-svgs
+          path: DOCUMENTATION/diagrams/images/*.svg

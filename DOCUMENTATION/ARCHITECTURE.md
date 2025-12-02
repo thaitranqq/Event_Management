@@ -189,3 +189,16 @@ Or use an online PlantUML renderer or the `plantuml` VS Code extension to previe
 ---
 
 Document created on: 2025-12-02
+
+Rendered diagram images (if present)
+
+- `context.puml` — Context Diagram
+  - ![Context Diagram](DOCUMENTATION/diagrams/images/context.svg)
+- `usecases.puml` — Use Case Diagram
+  - ![Use Case Diagram](DOCUMENTATION/diagrams/images/usecases.svg)
+- `registration_flow.puml` — Registration sequence
+  - ![Registration Flow](DOCUMENTATION/diagrams/images/registration_flow.svg)
+- `checkin_flow.puml` — Check-in sequence
+  - ![Check-in Flow](DOCUMENTATION/diagrams/images/checkin_flow.svg)
+- `edit_event_flow.puml` — Edit event sequence
+  - ![Edit Event Flow](DOCUMENTATION/diagrams/images/edit_event_flow.svg)
