@@ -82,13 +82,12 @@ Organizer --> UC_GenerateEventReport
 Staff --> UC_CheckinQR
 Staff --> UC_CheckinManual
 Staff --> UC_ViewCheckins
-Staff --> UC_AssignStaff
 
 ' Include / Extend relationships for clarity
 UC_ResendOTP ..> UC_VerifyOTP : <<supporting>>
 UC_EventRegister ..> UC_SendNotification : <<notify>>
 UC_CreateEvent ..> UC_SendNotification : <<notify>>
 
-// notes removed per request
+ ' notes removed per request
 
 @enduml

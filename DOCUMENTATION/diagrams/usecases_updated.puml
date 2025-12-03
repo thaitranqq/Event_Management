@@ -81,7 +81,6 @@ Organizer --> UC_Export
 Staff --> UC_CheckinQR
 Staff --> UC_CheckinManual
 Staff --> UC_ViewCheckins
-Staff --> UC_AssignStaff
 
 ' Include / extend relationships
 UC_RegisterEvent ..> UC_GenerateTicket : <<include>>
