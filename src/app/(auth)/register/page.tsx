@@ -26,12 +26,32 @@ export default function RegisterPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-
         if (formData.password !== formData.confirmPassword) {
             toast({
                 variant: "destructive",
                 title: "Error",
                 description: "Passwords do not match",
+            })
+            return
+        }
+
+        // Client-side validation: enforce FPT student email domain
+        if (!formData.email.toLowerCase().endsWith("@fpt.edu.vn")) {
+            toast({
+                variant: "destructive",
+                title: "Invalid email domain",
+                description: "Email must be an @fpt.edu.vn address",
+            })
+            return
+        }
+
+        // Basic studentId validation: alphanumeric, 6-10 chars
+        const sid = formData.studentId || ""
+        if (!/^[a-zA-Z0-9]{6,10}$/.test(sid)) {
+            toast({
+                variant: "destructive",
+                title: "Invalid student ID",
+                description: "Student ID must be alphanumeric and 6-10 characters",
             })
             return
         }

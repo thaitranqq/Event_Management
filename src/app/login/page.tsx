@@ -114,11 +114,18 @@ export default function LoginPage() {
                         </Button>
                     </form>
                 </CardContent>
-                <div className="px-6 pb-6 text-center text-sm">
-                    Don&apos;t have an account?{" "}
-                    <a href="/register" className="text-blue-600 hover:underline">
-                        Sign up
-                    </a>
+                <div className="px-6 pb-6 text-center text-sm space-y-2">
+                    <div>
+                        Don&apos;t have an account?{" "}
+                        <a href="/register" className="text-blue-600 hover:underline">
+                            Sign up
+                        </a>
+                    </div>
+                    <div>
+                        <a href="/otp-forgot" className="text-sm text-blue-600 hover:underline">
+                            Forgot password?
+                        </a>
+                    </div>
                 </div>
             </Card>
         </div>

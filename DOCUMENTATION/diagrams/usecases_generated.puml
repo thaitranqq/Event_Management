@@ -1,0 +1,104 @@
+title Use Case Diagram - Event Management (Chi tiết)
+@startuml
+left to right direction
+skinparam handwritten false
+title Use Case Diagram - Event Management
+
+actor "Student" as Student
+actor "Event Organizer / Admin" as Organizer
+actor "Staff (Check-in)" as Staff
+
+rectangle "Authentication & Account" {
+  usecase "Register account" as UC_Register
+  usecase "Login (OTP)" as UC_Login
+  usecase "Resend OTP" as UC_ResendOTP
+  usecase "Verify OTP / Check verification" as UC_VerifyOTP
+  UC_Register .> UC_VerifyOTP : <<include>>
+  UC_Login .> UC_VerifyOTP : <<include>>
+}
+
+rectangle "Event Management" {
+  usecase "Create event" as UC_CreateEvent
+  usecase "Edit event" as UC_EditEvent
+  usecase "Delete / Cancel event" as UC_DeleteEvent
+  usecase "Publish / Unpublish event" as UC_PublishEvent
+  usecase "Manage speakers" as UC_ManageSpeakers
+  usecase "Manage venues" as UC_ManageVenues
+  usecase "Manage event staff" as UC_ManageStaff
+  usecase "Assign staff to event" as UC_AssignStaff
+}
+
+rectangle "Registration & Ticketing" {
+  usecase "Browse events" as UC_Browse
+  usecase "View event details" as UC_ViewEvent
+  usecase "Register for event" as UC_EventRegister
+  usecase "Generate ticket (QR)" as UC_GenerateTicket
+  usecase "View / Download ticket" as UC_ViewTicket
+  usecase "Cancel registration" as UC_CancelRegistration
+  usecase "Manage registrations" as UC_ManageRegistrations
+  UC_EventRegister .> UC_GenerateTicket : <<include>>
+  UC_GenerateTicket .> UC_ViewTicket : <<include>>
+}
+
+rectangle "Check-in" {
+  usecase "Scan QR / Check-in" as UC_CheckinQR
+  usecase "Manual check-in" as UC_CheckinManual
+  usecase "View check-in list" as UC_ViewCheckins
+}
+
+rectangle "Reports & Admin" {
+  usecase "View reports overview" as UC_ReportsOverview
+  usecase "Generate event report" as UC_GenerateEventReport
+  usecase "Export reports (CSV)" as UC_ExportReports
+}
+
+rectangle "Notifications" {
+  usecase "Send notification / email" as UC_SendNotification
+}
+
+' Actors -> Use Cases
+Student --> UC_Register
+Student --> UC_Login
+Student --> UC_ResendOTP
+Student --> UC_Browse
+Student --> UC_ViewEvent
+Student --> UC_EventRegister
+Student --> UC_ViewTicket
+Student --> UC_CancelRegistration
+
+Organizer --> UC_CreateEvent
+Organizer --> UC_EditEvent
+Organizer --> UC_DeleteEvent
+Organizer --> UC_PublishEvent
+Organizer --> UC_ManageSpeakers
+Organizer --> UC_ManageVenues
+Organizer --> UC_ManageStaff
+Organizer --> UC_AssignStaff
+Organizer --> UC_ManageRegistrations
+Organizer --> UC_ReportsOverview
+Organizer --> UC_ExportReports
+Organizer --> UC_GenerateEventReport
+
+Staff --> UC_CheckinQR
+Staff --> UC_CheckinManual
+Staff --> UC_ViewCheckins
+Staff --> UC_AssignStaff
+
+' Include / Extend relationships for clarity
+UC_ResendOTP ..> UC_VerifyOTP : <<supporting>>
+UC_EventRegister ..> UC_SendNotification : <<notify>>
+UC_CreateEvent ..> UC_SendNotification : <<notify>>
+
+note right of UC_ViewTicket
+  Ticket contains a QR code used for check-in.
+end note
+
+note left
+  Use cases inferred from repository routes and pages:
+  authentication (OTP), event CRUD, registrations,
+  ticket generation, check-ins, staff management, and reports.
+  I added "Resend OTP", "Generate ticket", "Manage registrations",
+  and "Generate event report" to cover API routes found.
+end note
+
+@enduml

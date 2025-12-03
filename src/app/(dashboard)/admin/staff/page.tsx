@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { useToast } from "@/components/ui/use-toast"
-import { Users, Plus, Trash2, Copy, Check, Loader2 } from "lucide-react"
+import { Users, Plus, Trash2, Copy, Check, Loader2, Key } from "lucide-react"
 
 interface Staff {
     id: string
@@ -25,6 +25,10 @@ export default function StaffManagementPage() {
     const [staffList, setStaffList] = useState<Staff[]>([])
     const [loading, setLoading] = useState(true)
     const [isDialogOpen, setIsDialogOpen] = useState(false)
+    const [isResetDialogOpen, setIsResetDialogOpen] = useState(false)
+    const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null)
+    const [tempPasswordResult, setTempPasswordResult] = useState<string | null>(null)
+    const [resetting, setResetting] = useState(false)
     const [creating, setCreating] = useState(false)
     const [newStaffData, setNewStaffData] = useState({ name: "", username: "" })
     const [createdStaff, setCreatedStaff] = useState<{ email: string, password: string } | null>(null)
@@ -125,6 +129,36 @@ export default function StaffManagementPage() {
         setIsDialogOpen(false)
         setCreatedStaff(null)
         setNewStaffData({ name: "", username: "" })
+    }
+
+    const openResetConfirm = (id: string) => {
+        setSelectedStaffId(id)
+        setTempPasswordResult(null)
+        setIsResetDialogOpen(true)
+    }
+
+    const handleConfirmReset = async () => {
+        if (!selectedStaffId) return
+        setResetting(true)
+        try {
+            const res = await fetch(`/api/admin/staff/${selectedStaffId}/reset-password`, { method: "POST" })
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.message || data.error || "Failed to reset password")
+            setTempPasswordResult(data.tempPassword)
+            toast({ title: "Temporary password generated", description: "Showed in dialog" })
+            fetchStaff()
+        } catch (error: any) {
+            toast({ variant: "destructive", title: "Error", description: error.message })
+            setIsResetDialogOpen(false)
+        } finally {
+            setResetting(false)
+        }
+    }
+
+    const handleCloseReset = () => {
+        setIsResetDialogOpen(false)
+        setSelectedStaffId(null)
+        setTempPasswordResult(null)
     }
 
     return (
@@ -257,16 +291,27 @@ export default function StaffManagementPage() {
                                             </TableCell>
                                             <TableCell>{new Date(staff.createdAt).toLocaleDateString()}</TableCell>
                                             <TableCell className="text-right">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                                                    onClick={() => handleDeleteStaff(staff.id)}
-                                                    disabled={staff._count.assignedEvents > 0}
-                                                    title={staff._count.assignedEvents > 0 ? "Cannot delete staff with assigned events" : "Delete staff"}
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="text-yellow-600 hover:text-yellow-800 hover:bg-yellow-50"
+                                                        onClick={() => openResetConfirm(staff.id)}
+                                                        title="Reset staff password"
+                                                    >
+                                                        <Key className="h-4 w-4" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                                        onClick={() => handleDeleteStaff(staff.id)}
+                                                        disabled={staff._count.assignedEvents > 0}
+                                                        title={staff._count.assignedEvents > 0 ? "Cannot delete staff with assigned events" : "Delete staff"}
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
                                             </TableCell>
                                         </TableRow>
                                     ))
@@ -276,6 +321,43 @@ export default function StaffManagementPage() {
                     )}
                 </CardContent>
             </Card>
+            {/* Reset password confirmation dialog */}
+            {isResetDialogOpen && (
+                <Dialog open={isResetDialogOpen} onOpenChange={(open: boolean) => !open && handleCloseReset()}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Reset Staff Password</DialogTitle>
+                            <DialogDescription>
+                                This will generate a temporary password for the staff account. You must inform the staff of the temporary password. The staff will need to change it after login.
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        {!tempPasswordResult ? (
+                            <div className="space-y-4">
+                                <p className="text-sm">Are you sure you want to reset the password for this staff account?</p>
+                                <div className="flex justify-end gap-2">
+                                    <Button variant="outline" onClick={handleCloseReset} disabled={resetting}>Cancel</Button>
+                                    <Button onClick={handleConfirmReset} disabled={resetting}>{resetting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Confirm'}</Button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                <div className="bg-green-50 p-4 rounded-md border border-green-200 text-center">
+                                    <h3 className="text-green-800 font-medium mb-2">Temporary Password</h3>
+                                    <p className="text-sm text-green-700 mb-4">Please copy and provide this password to the staff.</p>
+                                    <div className="font-mono bg-white p-2 rounded border inline-block">{tempPasswordResult}</div>
+                                </div>
+                                <div className="flex justify-end gap-2">
+                                    <Button variant="outline" onClick={() => { navigator.clipboard.writeText(tempPasswordResult); toast({ description: 'Password copied to clipboard' }) }}>
+                                        <Copy className="h-4 w-4 mr-2" /> Copy
+                                    </Button>
+                                    <Button onClick={handleCloseReset}>Close</Button>
+                                </div>
+                            </div>
+                        )}
+                    </DialogContent>
+                </Dialog>
+            )}
         </div>
     )
 }

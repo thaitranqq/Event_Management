@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
-import { Calendar, Users, MapPin, ClipboardList, BarChart3, ScanLine, LogOut, Menu, X } from "lucide-react"
+import { Calendar, Users, MapPin, ClipboardList, BarChart3, ScanLine, LogOut, Menu, X, Lock } from "lucide-react"
 import { useState } from "react"
 
 export function Navbar() {
@@ -67,6 +67,12 @@ export function Navbar() {
                                     {session?.user?.role}
                                 </span>
                             </div>
+                            {session && (
+                                <Link href="/settings/change-password" className="text-sm text-gray-600 hover:text-gray-800 flex items-center gap-2">
+                                    <Lock className="w-4 h-4" />
+                                    Change Password
+                                </Link>
+                            )}
                             <Button
                                 variant="outline"
                                 size="sm"
@@ -117,6 +123,12 @@ export function Navbar() {
                                     {session?.user?.role}
                                 </span>
                             </div>
+                            {session && (
+                                <Link href="/settings/change-password" className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100 mb-2">
+                                    <Lock className="w-4 h-4" />
+                                    Change Password
+                                </Link>
+                            )}
                             <Button variant="outline" size="sm" onClick={() => signOut({ callbackUrl: "/login" })}>
                                 <LogOut className="w-4 h-4 mr-2" />
                                 Sign Out
