@@ -19,6 +19,7 @@ async function main() {
             password: adminPassword,
             name: 'Admin User',
             role: 'ADMIN',
+            emailVerified: new Date(),
         },
     })
 
@@ -30,6 +31,7 @@ async function main() {
             password: staffPassword,
             name: 'Staff User',
             role: 'STAFF',
+            emailVerified: new Date(),
         },
     })
 
@@ -42,6 +44,7 @@ async function main() {
             name: 'Student User',
             role: 'STUDENT',
             studentId: 'SE160001',
+            emailVerified: new Date(),
         },
     })
 
