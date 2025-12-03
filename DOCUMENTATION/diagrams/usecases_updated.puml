@@ -1,0 +1,100 @@
+@startuml
+left to right direction
+skinparam handwritten false
+title Use Case Diagram - Event Management (Updated)
+
+actor "Student" as Student
+actor "Event Organizer / Admin" as Organizer
+actor "Staff (Check-in)" as Staff
+
+rectangle "Authentication & Account" {
+  usecase "Register account (OTP verification)" as UC_Register
+  usecase "Login (credentials)" as UC_Login
+  usecase "Forgot password (send OTP)" as UC_Forgot
+  usecase "Reset password (OTP)" as UC_Reset
+  usecase "Change password (current password required)" as UC_Change
+}
+
+rectangle "Event Management" {
+  usecase "Create event" as UC_CreateEvent
+  usecase "Edit event" as UC_EditEvent
+  usecase "Delete / Cancel event" as UC_DeleteEvent
+  usecase "Publish / Unpublish event" as UC_PublishEvent
+  usecase "Manage speakers" as UC_ManageSpeakers
+  usecase "Manage venues" as UC_ManageVenues
+}
+
+rectangle "Registration & Ticketing" {
+  usecase "Browse events" as UC_Browse
+  usecase "View event details" as UC_ViewEvent
+  usecase "Register for event" as UC_RegisterEvent
+  usecase "Generate ticket (QR)" as UC_GenerateTicket
+  usecase "View / Download ticket" as UC_ViewTicket
+  usecase "Cancel registration" as UC_CancelRegistration
+  usecase "Manage registrations (admin)" as UC_ManageRegistrations
+}
+
+rectangle "Check-in" {
+  usecase "Scan QR / Check-in" as UC_CheckinQR
+  usecase "Manual check-in" as UC_CheckinManual
+  usecase "View check-in list" as UC_ViewCheckins
+}
+
+rectangle "Staff & Admin" {
+  usecase "Manage staff accounts" as UC_ManageStaff
+  usecase "Assign staff to event" as UC_AssignStaff
+  usecase "Admin reset staff password (generate temp)" as UC_AdminResetStaff
+}
+
+rectangle "Reports & Notifications" {
+  usecase "View reports overview" as UC_Reports
+  usecase "Generate event report" as UC_GenerateReport
+  usecase "Export reports (CSV)" as UC_Export
+  usecase "Send notification / email" as UC_Notify
+}
+
+' Actor relationships
+Student --> UC_Register
+Student --> UC_Login
+Student --> UC_Forgot
+Student --> UC_Reset
+Student --> UC_Change
+Student --> UC_Browse
+Student --> UC_ViewEvent
+Student --> UC_RegisterEvent
+Student --> UC_ViewTicket
+Student --> UC_CancelRegistration
+
+Organizer --> UC_CreateEvent
+Organizer --> UC_EditEvent
+Organizer --> UC_DeleteEvent
+Organizer --> UC_PublishEvent
+Organizer --> UC_ManageSpeakers
+Organizer --> UC_ManageVenues
+Organizer --> UC_ManageRegistrations
+Organizer --> UC_ManageStaff
+Organizer --> UC_AssignStaff
+Organizer --> UC_Reports
+Organizer --> UC_GenerateReport
+Organizer --> UC_Export
+
+Staff --> UC_CheckinQR
+Staff --> UC_CheckinManual
+Staff --> UC_ViewCheckins
+Staff --> UC_AssignStaff
+
+' Include / extend relationships
+UC_RegisterEvent .> UC_GenerateTicket : <<include>>
+UC_GenerateTicket .> UC_ViewTicket : <<include>>
+UC_Forgot ..> UC_Reset : <<flow>>
+UC_AdminResetStaff .> UC_Notify : <<notify>>
+UC_Register .> UC_Notify : <<notify>>
+UC_CreateEvent .> UC_Notify : <<notify>>
+
+note right
+  This updated diagram includes password flows (forgot/reset/change),
+  admin staff password reset (generates a temporary password), and
+  notification/reporting actions inferred from the codebase.
+end note
+
+@enduml
