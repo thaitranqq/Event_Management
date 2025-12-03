@@ -84,13 +84,13 @@ Staff --> UC_ViewCheckins
 Staff --> UC_AssignStaff
 
 ' Include / extend relationships
-UC_RegisterEvent .> UC_GenerateTicket : <<include>>
-UC_GenerateTicket .> UC_ViewTicket : <<include>>
+UC_RegisterEvent ..> UC_GenerateTicket : <<include>>
+UC_GenerateTicket ..> UC_ViewTicket : <<include>>
 UC_Forgot ..> UC_Reset : <<flow>>
-UC_AdminResetStaff .> UC_Notify : <<notify>>
-UC_Register .> UC_Notify : <<notify>>
-UC_CreateEvent .> UC_Notify : <<notify>>
+UC_AdminResetStaff ..> UC_Notify : <<notify>>
+UC_Register ..> UC_Notify : <<notify>>
+UC_CreateEvent ..> UC_Notify : <<notify>>
 
-// notes removed per request
+ ' notes removed per request
 
 @enduml
