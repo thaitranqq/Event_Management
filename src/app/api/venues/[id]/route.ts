@@ -75,11 +75,29 @@ export async function DELETE(request: NextRequest, { params }: Params) {
 
         const { id } = params
 
+        // Check if venue exists first
+        const existingVenue = await prisma.venue.findUnique({
+            where: { id },
+        })
+
+        if (!existingVenue) {
+            return NextResponse.json({ error: "Venue not found" }, { status: 404 })
+        }
+
         await prisma.venue.delete({ where: { id } })
 
         return NextResponse.json({ success: true })
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error deleting venue:", error)
+
+        // Handle foreign key constraint errors
+        if (error.code === 'P2003') {
+            return NextResponse.json(
+                { error: "Cannot delete venue that is assigned to events" },
+                { status: 400 }
+            )
+        }
+
         return NextResponse.json({ error: "Failed to delete venue" }, { status: 500 })
     }
 }

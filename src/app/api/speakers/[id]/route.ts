@@ -70,11 +70,29 @@ export async function DELETE(request: NextRequest, { params }: Params) {
 
         const { id } = params
 
+        // Check if speaker exists first
+        const existingSpeaker = await prisma.speaker.findUnique({
+            where: { id },
+        })
+
+        if (!existingSpeaker) {
+            return NextResponse.json({ error: "Speaker not found" }, { status: 404 })
+        }
+
         await prisma.speaker.delete({ where: { id } })
 
         return NextResponse.json({ success: true })
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error deleting speaker:", error)
+
+        // Handle foreign key constraint errors
+        if (error.code === 'P2003') {
+            return NextResponse.json(
+                { error: "Cannot delete speaker that is assigned to events" },
+                { status: 400 }
+            )
+        }
+
         return NextResponse.json({ error: "Failed to delete speaker" }, { status: 500 })
     }
 }
