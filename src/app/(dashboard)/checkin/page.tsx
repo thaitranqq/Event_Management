@@ -6,11 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ScanLine, CheckCircle2, XCircle, AlertCircle } from "lucide-react"
+import { useToast } from '@/hooks/use-toast'
 
 // Dynamically load the QR scanner on client only (no SSR)
 const QrScanner: any = dynamic(() => import("react-qr-scanner"), { ssr: false })
 
 export default function CheckInPage() {
+    const { toast } = useToast()
     const [scanning, setScanning] = useState(false)
     const [result, setResult] = useState<{
         type: "success" | "error" | "warning"
@@ -38,6 +40,10 @@ export default function CheckInPage() {
             const data = await res.json()
 
             if (res.ok) {
+                    toast({
+                        title: 'Check-in successful',
+                        description: `${data.checkIn.user.name} has been checked in.`,
+                    })
                 setResult({
                     type: "success",
                     message: "Check-in successful!",
@@ -46,6 +52,11 @@ export default function CheckInPage() {
                 setRecentCheckIns((prev) => [data.checkIn, ...prev.slice(0, 9)])
                 setManualCode("")
             } else if (res.status === 409) {
+                    toast({
+                        title: 'Already checked in',
+                        description: `Already checked in at ${new Date(data.checkedInAt).toLocaleString()}`,
+                        variant: 'warning',
+                    })
                 setResult({
                     type: "warning",
                     message: `Already checked in at ${new Date(
@@ -53,12 +64,22 @@ export default function CheckInPage() {
                     ).toLocaleString()}`,
                 })
             } else {
+                    toast({
+                        title: 'Check-in failed',
+                        description: data.error || 'Check-in failed',
+                        variant: 'destructive',
+                    })
                 setResult({
                     type: "error",
                     message: data.error || "Check-in failed",
                 })
             }
         } catch (error) {
+                toast({
+                    title: 'Check-in error',
+                    description: 'An error occurred. Please try again.',
+                    variant: 'destructive',
+                })
             setResult({
                 type: "error",
                 message: "An error occurred. Please try again.",

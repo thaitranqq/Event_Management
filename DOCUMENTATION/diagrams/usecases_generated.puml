@@ -13,8 +13,8 @@ rectangle "Authentication & Account" {
   usecase "Login (OTP)" as UC_Login
   usecase "Resend OTP" as UC_ResendOTP
   usecase "Verify OTP / Check verification" as UC_VerifyOTP
-  UC_Register ..> UC_VerifyOTP : <<include>>
-  UC_Login ..> UC_VerifyOTP : <<include>>
+  UC_Register ..> UC_VerifyOTP : <<extend>>
+  UC_Login ..> UC_VerifyOTP : <<extend>>
 }
 
 rectangle "Event Management" {
@@ -84,9 +84,9 @@ Staff --> UC_CheckinManual
 Staff --> UC_ViewCheckins
 
 ' Include / Extend relationships for clarity
-UC_ResendOTP ..> UC_VerifyOTP : <<include>>
-UC_EventRegister ..> UC_SendNotification : <<include>>
-UC_CreateEvent ..> UC_SendNotification : <<include>>
+UC_ResendOTP ..> UC_VerifyOTP : <<extend>>
+UC_EventRegister ..> UC_SendNotification : <<extend>>
+UC_CreateEvent ..> UC_SendNotification : <<extend>>
 
  ' notes removed per request
 

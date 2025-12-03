@@ -7,6 +7,7 @@ import { signOut, useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Calendar, Users, MapPin, ClipboardList, BarChart3, ScanLine, LogOut, Menu, X, Lock } from "lucide-react"
 import { useState } from "react"
+import { NotificationBell } from "@/components/notification-bell"
 
 export function Navbar() {
     const [open, setOpen] = useState(false)
@@ -50,8 +51,8 @@ export function Navbar() {
                                         key={item.href}
                                         href={item.href}
                                         className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${isActive
-                                                ? "bg-primary text-white"
-                                                : "text-gray-600 hover:bg-gray-100"
+                                            ? "bg-primary text-white"
+                                            : "text-gray-600 hover:bg-gray-100"
                                             }`}
                                     >
                                         <Icon className="w-4 h-4" />
@@ -69,6 +70,7 @@ export function Navbar() {
                                     {session?.user?.role}
                                 </span>
                             </div>
+                            <NotificationBell />
                             {session && (
                                 <Link href="/settings/change-password" className="text-sm text-gray-600 hover:text-gray-800 flex items-center gap-2">
                                     <Lock className="w-4 h-4" />
@@ -107,8 +109,8 @@ export function Navbar() {
                                     key={item.href}
                                     href={item.href}
                                     className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive
-                                            ? "bg-primary text-white"
-                                            : "text-gray-600 hover:bg-gray-100"
+                                        ? "bg-primary text-white"
+                                        : "text-gray-600 hover:bg-gray-100"
                                         }`}
                                     onClick={() => setOpen(false)}
                                 >

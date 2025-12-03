@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
+import { notifyCheckInSuccess } from '@/lib/notification'
 
 interface Params {
     params: {
@@ -145,6 +146,13 @@ export async function POST(request: NextRequest) {
                 },
             },
         })
+
+        // Notify the user that they've been checked in (do not fail the request if notification fails)
+        try {
+            await notifyCheckInSuccess(checkIn.user.id, checkIn.event.id)
+        } catch (err) {
+            console.error('Failed to send check-in notification:', err)
+        }
 
         return NextResponse.json({
             success: true,

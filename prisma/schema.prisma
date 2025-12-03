@@ -45,6 +45,21 @@ enum CheckInMethod {
   MANUAL
 }
 
+enum NotificationType {
+  REGISTRATION_CONFIRMED
+  EVENT_REMINDER
+  EVENT_UPDATED
+  EVENT_CANCELLED
+  CHECK_IN_SUCCESS
+  ANNOUNCEMENT
+}
+
+enum AnnouncementPriority {
+  LOW
+  NORMAL
+  HIGH
+}
+
 model User {
   id            String         @id @default(cuid())
   email         String         @unique
@@ -52,6 +67,7 @@ model User {
   name          String
   role          UserRole       @default(STUDENT)
   studentId     String?        @unique
+  departmentId  String?
   image         String?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
@@ -59,13 +75,18 @@ model User {
   otp           String?
   otpExpires    DateTime?
   
+  department        Department?    @relation(fields: [departmentId], references: [id], onDelete: SetNull)
   registrations     Registration[]
   checkins          CheckIn[]
   assignedEvents    EventStaff[]       @relation("StaffAssignments")
   performedCheckIns CheckIn[]          @relation("StaffCheckIns")
+  notifications     Notification[]
+  feedback          EventFeedback[]
+  auditLogs         AuditLog[]
   
   @@index([email])
   @@index([role])
+  @@index([departmentId])
 }
 
 model Speaker {
@@ -115,11 +136,15 @@ model Event {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   
-  speaker       Speaker?       @relation(fields: [speakerId], references: [id], onDelete: SetNull)
-  venue         Venue?         @relation(fields: [venueId], references: [id], onDelete: SetNull)
+  speaker       Speaker?        @relation(fields: [speakerId], references: [id], onDelete: SetNull)
+  venue         Venue?          @relation(fields: [venueId], references: [id], onDelete: SetNull)
   registrations Registration[]
   checkins      CheckIn[]
   assignedStaff EventStaff[]
+  feedback      EventFeedback[]
+  report        EventReport?
+  announcements Announcement[]
+  auditLogs     AuditLog[]
   
   @@index([category])
   @@index([status])
@@ -175,3 +200,100 @@ model EventStaff {
   @@index([eventId])
   @@index([staffId])
 }
+
+model Department {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  code        String   @unique
+  description String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  users User[]
+  
+  @@index([code])
+}
+
+model Notification {
+  id        String             @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String             @db.Text
+  isRead    Boolean            @default(false)
+  sentAt    DateTime           @default(now())
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([isRead])
+  @@index([sentAt])
+}
+
+model EventFeedback {
+  id          String   @id @default(cuid())
+  userId      String
+  eventId     String
+  rating      Int
+  comment     String?  @db.Text
+  submittedAt DateTime @default(now())
+  
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, eventId])
+  @@index([eventId])
+  @@index([rating])
+}
+
+model EventReport {
+  id                  String   @id @default(cuid())
+  eventId             String   @unique
+  totalRegistrations  Int      @default(0)
+  totalCheckIns       Int      @default(0)
+  attendanceRate      Float?
+  averageRating       Float?
+  generatedAt         DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  @@index([eventId])
+}
+
+model Announcement {
+  id          String               @id @default(cuid())
+  eventId     String
+  title       String
+  content     String               @db.Text
+  priority    AnnouncementPriority @default(NORMAL)
+  publishedAt DateTime             @default(now())
+  
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  @@index([eventId])
+  @@index([priority])
+  @@index([publishedAt])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  eventId    String?
+  action     String
+  entityType String
+  entityId   String?
+  details    Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+  
+  user  User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+  event Event? @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  
+  @@index([userId])
+  @@index([eventId])
+  @@index([action])
+  @@index([entityType])
+  @@index([createdAt])
+}
+

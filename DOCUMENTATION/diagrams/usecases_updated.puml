@@ -85,10 +85,10 @@ Staff --> UC_ViewCheckins
 ' Include / extend relationships
 UC_RegisterEvent ..> UC_GenerateTicket : <<include>>
 UC_GenerateTicket ..> UC_ViewTicket : <<include>>
-UC_Forgot ..> UC_Reset : <<include>>
-UC_AdminResetStaff ..> UC_Notify : <<include>>
+UC_Forgot ..> UC_Reset : <<extend>>
+UC_AdminResetStaff ..> UC_Notify : <<extend>>
 UC_Register ..> UC_Notify : <<include>>
-UC_CreateEvent ..> UC_Notify : <<include>>
+UC_CreateEvent ..> UC_Notify : <<extend>>
 
  ' notes removed per request
 

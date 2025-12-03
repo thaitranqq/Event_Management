@@ -6,6 +6,57 @@ const prisma = new PrismaClient()
 async function main() {
     console.log('Starting database seed...')
 
+    // Create departments first
+    const departments = await Promise.all([
+        prisma.department.upsert({
+            where: { code: 'SE' },
+            update: {},
+            create: {
+                name: 'Software Engineering',
+                code: 'SE',
+                description: 'Software Engineering and Development',
+            },
+        }),
+        prisma.department.upsert({
+            where: { code: 'AI' },
+            update: {},
+            create: {
+                name: 'Artificial Intelligence',
+                code: 'AI',
+                description: 'Artificial Intelligence and Machine Learning',
+            },
+        }),
+        prisma.department.upsert({
+            where: { code: 'IA' },
+            update: {},
+            create: {
+                name: 'Information Assurance',
+                code: 'IA',
+                description: 'Cybersecurity and Information Assurance',
+            },
+        }),
+        prisma.department.upsert({
+            where: { code: 'BA' },
+            update: {},
+            create: {
+                name: 'Business Administration',
+                code: 'BA',
+                description: 'Business Administration and Management',
+            },
+        }),
+        prisma.department.upsert({
+            where: { code: 'GD' },
+            update: {},
+            create: {
+                name: 'Graphic Design',
+                code: 'GD',
+                description: 'Graphic Design and Digital Arts',
+            },
+        }),
+    ])
+
+    console.log('Created departments:', departments.length)
+
     // Create users
     const adminPassword = await bcrypt.hash('admin123', 10)
     const staffPassword = await bcrypt.hash('staff123', 10)
@@ -39,6 +90,7 @@ async function main() {
             password: staffPassword,
             name: 'Staff User',
             role: 'STAFF',
+            departmentId: departments[0].id, // SE department
             emailVerified: new Date(),
         },
     })
@@ -56,6 +108,7 @@ async function main() {
             name: 'Student User',
             role: 'STUDENT',
             studentId: 'SE160001',
+            departmentId: departments[0].id, // SE department
             emailVerified: new Date(),
         },
     })

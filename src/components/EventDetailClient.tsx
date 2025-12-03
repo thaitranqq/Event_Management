@@ -9,7 +9,12 @@ import { Calendar, MapPin, Users, Clock, UserPlus } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { formatDateTime } from "@/lib/utils"
+import { AnnouncementList } from "@/components/announcement-list"
+import { AnnouncementForm } from "@/components/announcement-form"
+import { FeedbackForm } from "@/components/feedback-form"
+import { FeedbackList } from "@/components/feedback-list"
 
 interface EventDetailClientProps {
     event: any
@@ -24,6 +29,8 @@ export function EventDetailClient({ event }: EventDetailClientProps) {
     const isAdmin = session?.user?.role === "ADMIN"
     const [showCancelDialog, setShowCancelDialog] = useState(false)
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+    const [announcementsVersion, setAnnouncementsVersion] = useState(0)
+    const [feedbackVersion, setFeedbackVersion] = useState(0)
     const availableSlots = event.capacity - event._count.registrations
     const isFullyBooked = availableSlots <= 0
 
@@ -303,6 +310,55 @@ export function EventDetailClient({ event }: EventDetailClientProps) {
                     </Card>
                 </div>
             </div>
+
+            {/* Announcements and Feedback Tabs */}
+            <Tabs defaultValue="announcements" className="mt-8">
+                <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="announcements">Announcements</TabsTrigger>
+                    <TabsTrigger value="feedback">Feedback</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="announcements" className="space-y-4 mt-6">
+                    {(isAdmin || session?.user?.role === 'STAFF') && (
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Create Announcement</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <AnnouncementForm
+                                    eventId={event.id}
+                                    onSuccess={() => {
+                                        setAnnouncementsVersion((v) => v + 1)
+                                        router.refresh()
+                                    }}
+                                />
+                            </CardContent>
+                        </Card>
+                    )}
+                    <AnnouncementList eventId={event.id} version={announcementsVersion} />
+                </TabsContent>
+
+                <TabsContent value="feedback" className="space-y-4 mt-6">
+                    {event.isRegistered && new Date(event.endDate) < new Date() && (
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Submit Your Feedback</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <FeedbackForm
+                                    eventId={event.id}
+                                    eventTitle={event.title}
+                                    onSuccess={() => {
+                                        setFeedbackVersion((v) => v + 1)
+                                        router.refresh()
+                                    }}
+                                />
+                            </CardContent>
+                        </Card>
+                    )}
+                    <FeedbackList eventId={event.id} version={feedbackVersion} />
+                </TabsContent>
+            </Tabs>
         </div>
     )
 }
