@@ -1,12 +1,6 @@
 import { redirect } from "next/navigation"
-import { auth } from "@/lib/auth"
 
-export default async function HomePage() {
-    const session = await auth()
-
-    if (!session) {
-        redirect("/login")
-    }
-
+export default function HomePage() {
+    // Always redirect root to the public events listing
     redirect("/events")
 }

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
     Calendar,
     Users,
@@ -13,6 +14,7 @@ import {
     Presentation,
     CheckCircle2,
 } from "lucide-react"
+import Link from "next/link"
 
 interface ReportData {
     overview: {
@@ -89,14 +91,20 @@ export default function ReportsPage() {
 
     return (
         <div className="max-w-7xl mx-auto">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900">
-                    Reports & Analytics
-                </h1>
-                <p className="text-gray-600 mt-1">
-                    Overview of event management statistics and insights
-                </p>
-            </div>
+            <div className="mb-8 flex items-start justify-between">
+                        <div>
+                            <h1 className="text-3xl font-bold text-gray-900">Reports & Analytics</h1>
+                            <p className="text-gray-600 mt-1">Overview of event management statistics and insights</p>
+                        </div>
+                        <div>
+                            <Link href="/admin/staff">
+                                <Button variant="outline" className="ml-2">
+                                    <Users className="w-4 h-4 mr-2" />
+                                    Manage Staff
+                                </Button>
+                            </Link>
+                        </div>
+                    </div>
 
             {/* Key Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -255,9 +263,10 @@ export default function ReportsPage() {
                 <CardContent>
                     <div className="space-y-4">
                         {topEvents.map((event, index) => (
-                            <div
+                            <Link
+                                href={`/admin/events/${event.id}/report`}
                                 key={event.id}
-                                className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                                className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors block"
                             >
                                 <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold">
                                     {index + 1}
@@ -276,7 +285,7 @@ export default function ReportsPage() {
                                         {event._count.checkins} checked in
                                     </div>
                                 </div>
-                            </div>
+                            </Link>
                         ))}
                     </div>
                 </CardContent>

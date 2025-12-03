@@ -1,10 +1,14 @@
 "use client"
 
 import { useState } from "react"
+import dynamic from "next/dynamic"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ScanLine, CheckCircle2, XCircle, AlertCircle } from "lucide-react"
+
+// Dynamically load the QR scanner on client only (no SSR)
+const QrScanner: any = dynamic(() => import("react-qr-scanner"), { ssr: false })
 
 export default function CheckInPage() {
     const [scanning, setScanning] = useState(false)
@@ -15,6 +19,8 @@ export default function CheckInPage() {
     } | null>(null)
     const [recentCheckIns, setRecentCheckIns] = useState<any[]>([])
     const [manualCode, setManualCode] = useState("")
+    const [cameraActive, setCameraActive] = useState(false)
+    const [cameraError, setCameraError] = useState<string | null>(null)
 
     const handleScan = async (qrCode: string) => {
         setScanning(true)
@@ -87,15 +93,45 @@ export default function CheckInPage() {
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
-                                <div className="text-center">
-                                    <ScanLine className="w-24 h-24 text-gray-400 mx-auto mb-4" />
-                                    <p className="text-gray-600 mb-4">
-                                        Camera scanner will be available here
-                                    </p>
-                                    <p className="text-sm text-gray-500">
-                                        Note: Camera access requires HTTPS in production
-                                    </p>
-                                </div>
+                                {cameraActive ? (
+                                    <div className="w-full h-full">
+                                        {cameraError && (
+                                            <div className="p-3 text-sm text-red-600">{cameraError}</div>
+                                        )}
+                                        <QrScanner
+                                            delay={300}
+                                            onError={(err: any) => {
+                                                console.error('QR Scanner error', err)
+                                                setCameraError(err?.message || 'Camera error')
+                                                setCameraActive(false)
+                                            }}
+                                            onScan={(data: any) => {
+                                                if (!data) return
+                                                // data may be string or object depending on library
+                                                const code = typeof data === 'string' ? data : data?.text || data?.data || ''
+                                                if (code) {
+                                                    setCameraActive(false)
+                                                    handleScan(code)
+                                                }
+                                            }}
+                                            style={{ width: '100%', height: '100%' }}
+                                        />
+                                        <div className="mt-2 text-center">
+                                            <Button variant="outline" onClick={() => setCameraActive(false)}>Stop camera</Button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="text-center">
+                                        <ScanLine className="w-24 h-24 text-gray-400 mx-auto mb-4" />
+                                        <p className="text-gray-600 mb-4">Camera scanner will be available here</p>
+                                        <p className="text-sm text-gray-500">Note: Camera access requires HTTPS in production</p>
+                                        <div className="mt-4">
+                                            <Button onClick={() => { setCameraError(null); setCameraActive(true) }}>
+                                                Start Camera
+                                            </Button>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="border-t pt-4">

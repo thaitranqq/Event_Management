@@ -59,8 +59,10 @@ model User {
   otp           String?
   otpExpires    DateTime?
   
-  registrations Registration[]
-  checkins      CheckIn[]
+  registrations     Registration[]
+  checkins          CheckIn[]
+  assignedEvents    EventStaff[]       @relation("StaffAssignments")
+  performedCheckIns CheckIn[]          @relation("StaffCheckIns")
   
   @@index([email])
   @@index([role])
@@ -117,6 +119,7 @@ model Event {
   venue         Venue?         @relation(fields: [venueId], references: [id], onDelete: SetNull)
   registrations Registration[]
   checkins      CheckIn[]
+  assignedStaff EventStaff[]
   
   @@index([category])
   @@index([status])
@@ -142,16 +145,33 @@ model Registration {
 }
 
 model CheckIn {
-  id          String         @id @default(cuid())
-  userId      String
-  eventId     String
-  method      CheckInMethod  @default(QR_CODE)
-  checkedInAt DateTime       @default(now())
+  id                 String         @id @default(cuid())
+  userId             String
+  eventId            String
+  method             CheckInMethod  @default(QR_CODE)
+  checkedInAt        DateTime       @default(now())
+  checkedInByStaffId String?
   
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user             User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event            Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  checkedInByStaff User? @relation("StaffCheckIns", fields: [checkedInByStaffId], references: [id], onDelete: SetNull)
   
   @@unique([userId, eventId])
   @@index([eventId])
   @@index([checkedInAt])
+  @@index([checkedInByStaffId])
+}
+
+model EventStaff {
+  id        String   @id @default(cuid())
+  eventId   String
+  staffId   String
+  createdAt DateTime @default(now())
+  
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  staff User  @relation("StaffAssignments", fields: [staffId], references: [id], onDelete: Cascade)
+  
+  @@unique([eventId, staffId])
+  @@index([eventId])
+  @@index([staffId])
 }

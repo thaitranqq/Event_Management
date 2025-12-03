@@ -16,6 +16,7 @@ export default function RegisterPage() {
         email: "",
         password: "",
         confirmPassword: "",
+        studentId: "",
     })
     const [loading, setLoading] = useState(false)
 
@@ -45,6 +46,7 @@ export default function RegisterPage() {
                     name: formData.name,
                     email: formData.email,
                     password: formData.password,
+                    studentId: formData.studentId,
                 }),
             })
 
@@ -92,6 +94,19 @@ export default function RegisterPage() {
                                 id="name"
                                 placeholder="John Doe"
                                 value={formData.name}
+                                onChange={handleChange}
+                                required
+                                disabled={loading}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label htmlFor="studentId" className="text-sm font-medium">
+                                Student ID
+                            </label>
+                            <Input
+                                id="studentId"
+                                placeholder="SE123456"
+                                value={formData.studentId}
                                 onChange={handleChange}
                                 required
                                 disabled={loading}

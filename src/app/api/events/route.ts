@@ -140,6 +140,11 @@ export async function POST(request: NextRequest) {
                 status: status || EventStatus.DRAFT,
                 speakerId,
                 venueId,
+                assignedStaff: {
+                    create: body.staffIds?.map((staffId: string) => ({
+                        staffId
+                    }))
+                }
             },
             include: {
                 speaker: true,

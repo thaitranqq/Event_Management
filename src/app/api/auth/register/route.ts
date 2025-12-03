@@ -6,14 +6,19 @@ import { sendOTP } from "@/lib/mail"
 
 const registerSchema = z.object({
     name: z.string().min(2),
-    email: z.string().email(),
+    email: z.string().email().refine((email) => email.endsWith("@fpt.edu.vn"), {
+        message: "Email must be an @fpt.edu.vn address",
+    }),
     password: z.string().min(6),
+    studentId: z.string().min(6).max(10).regex(/^[a-zA-Z0-9]+$/, {
+        message: "Student ID must be alphanumeric",
+    }),
 })
 
 export async function POST(req: Request) {
     try {
         const body = await req.json()
-        const { name, email, password } = registerSchema.parse(body)
+        const { name, email, password, studentId } = registerSchema.parse(body)
 
         const existingUser = await prisma.user.findUnique({
             where: { email },
@@ -22,6 +27,18 @@ export async function POST(req: Request) {
         if (existingUser) {
             return NextResponse.json(
                 { message: "User already exists" },
+                { status: 400 }
+            )
+        }
+
+        // Check if student ID already exists
+        const existingStudentId = await prisma.user.findUnique({
+            where: { studentId },
+        })
+
+        if (existingStudentId) {
+            return NextResponse.json(
+                { message: "Student ID already registered" },
                 { status: 400 }
             )
         }
@@ -35,6 +52,7 @@ export async function POST(req: Request) {
                 name,
                 email,
                 password: hashedPassword,
+                studentId,
                 otp,
                 otpExpires,
             },

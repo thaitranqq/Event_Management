@@ -39,6 +39,7 @@ export default function EditEventPage() {
     const [error, setError] = useState("")
     const [speakers, setSpeakers] = useState<any[]>([])
     const [venues, setVenues] = useState<any[]>([])
+    const [staffList, setStaffList] = useState<any[]>([])
 
     const [formData, setFormData] = useState({
         title: "",
@@ -51,23 +52,27 @@ export default function EditEventPage() {
         status: "DRAFT",
         speakerId: "",
         venueId: "",
+        staffIds: [] as string[],
     })
 
     useEffect(() => {
         const loadData = async () => {
             try {
-                const [speakersRes, venuesRes, eventRes] = await Promise.all([
+                const [speakersRes, venuesRes, staffRes, eventRes] = await Promise.all([
                     fetch("/api/speakers"),
                     fetch("/api/venues"),
+                    fetch("/api/admin/staff"),
                     fetch(`/api/events/${id}`),
                 ])
 
                 const speakersData = await speakersRes.json()
                 const venuesData = await venuesRes.json()
+                const staffData = await staffRes.json()
                 const eventData = await eventRes.json()
 
                 setSpeakers(speakersData.speakers || [])
                 setVenues(venuesData.venues || [])
+                setStaffList(Array.isArray(staffData) ? staffData : [])
 
                 if (eventRes.ok) {
                     // eventData may include isRegistered flag and extra fields
@@ -82,6 +87,7 @@ export default function EditEventPage() {
                         status: eventData.status || "DRAFT",
                         speakerId: eventData.speakerId || "",
                         venueId: eventData.venueId || "",
+                        staffIds: eventData.assignedStaffIds || [],
                     })
                 } else {
                     setError(eventData.error || "Failed to load event")
@@ -336,19 +342,46 @@ export default function EditEventPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <label htmlFor="imageUrl" className="text-sm font-medium">
-                                Image URL (Optional)
-                            </label>
-                            <Input
-                                id="imageUrl"
-                                name="imageUrl"
-                                type="url"
-                                value={formData.imageUrl}
-                                onChange={handleChange}
-                                placeholder="https://example.com/image.jpg"
-                            />
+                            <label className="text-sm font-medium">Assign Staff</label>
+                            <div className="border rounded-md p-4 space-y-2 max-h-48 overflow-y-auto bg-white">
+                                {staffList.length === 0 ? (
+                                    <p className="text-sm text-gray-500">No staff members found.</p>
+                                ) : (
+                                    staffList.map((staff) => (
+                                        <div key={staff.id} className="flex items-center space-x-2">
+                                            <input
+                                                type="checkbox"
+                                                id={`staff-${staff.id}`}
+                                                checked={formData.staffIds.includes(staff.id)}
+                                                onChange={(e) => {
+                                                    if (e.target.checked) {
+                                                        setFormData({
+                                                            ...formData,
+                                                            staffIds: [...formData.staffIds, staff.id],
+                                                        })
+                                                    } else {
+                                                        setFormData({
+                                                            ...formData,
+                                                            staffIds: formData.staffIds.filter(
+                                                                (id) => id !== staff.id
+                                                            ),
+                                                        })
+                                                    }
+                                                }}
+                                                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                            />
+                                            <label
+                                                htmlFor={`staff-${staff.id}`}
+                                                className="text-sm cursor-pointer select-none"
+                                            >
+                                                {staff.name} <span className="text-gray-500">({staff.email})</span>
+                                            </label>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
                             <p className="text-xs text-gray-500">
-                                Provide a URL to an event poster or cover image
+                                Selected staff will be able to manage check-ins for this event.
                             </p>
                         </div>
 

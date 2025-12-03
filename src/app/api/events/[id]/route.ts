@@ -19,6 +19,9 @@ export async function GET(request: NextRequest, { params }: Params) {
             include: {
                 speaker: true,
                 venue: true,
+                assignedStaff: {
+                    select: { staffId: true }
+                },
                 _count: {
                     select: {
                         registrations: true,
@@ -51,7 +54,13 @@ export async function GET(request: NextRequest, { params }: Params) {
             isRegistered = !!registration
         }
 
-        return NextResponse.json({ ...event, isRegistered })
+        // normalize assigned staff ids for the client
+        const assignedStaffIds = (event.assignedStaff || []).map((a: any) => a.staffId)
+
+        // remove nested assignedStaff objects from event payload to avoid redundancy
+        const { assignedStaff, ...eventWithoutAssigned } = event as any
+
+        return NextResponse.json({ ...eventWithoutAssigned, assignedStaffIds, isRegistered })
     } catch (error) {
         console.error("Error fetching event:", error)
         return NextResponse.json(
@@ -73,14 +82,43 @@ export async function PUT(request: NextRequest, { params }: Params) {
         const { id } = params
         const body = await request.json()
 
+        // Extract staffIds if provided and remove from main update payload
+        const staffIds: string[] | undefined = body.staffIds
+        const updateData = { ...body }
+        if (staffIds !== undefined) delete (updateData as any).staffIds
+
+        // Update basic event fields
         const event = await prisma.event.update({
             where: { id },
-            data: body,
+            data: updateData,
             include: {
                 speaker: true,
                 venue: true,
             },
         })
+
+        // If staff assignment was provided, sync assignments
+        if (Array.isArray(staffIds)) {
+            // Get current assignments
+            const current = await prisma.eventStaff.findMany({ where: { eventId: id } })
+            const currentIds = current.map((c) => c.staffId)
+
+            const toAdd = staffIds.filter((s) => !currentIds.includes(s))
+            const toRemove = currentIds.filter((c) => !staffIds.includes(c))
+
+            if (toRemove.length > 0) {
+                await prisma.eventStaff.deleteMany({
+                    where: { eventId: id, staffId: { in: toRemove } },
+                })
+            }
+
+            if (toAdd.length > 0) {
+                await prisma.eventStaff.createMany({
+                    data: toAdd.map((staffId) => ({ eventId: id, staffId })),
+                    skipDuplicates: true,
+                })
+            }
+        }
 
         return NextResponse.json(event)
     } catch (error) {

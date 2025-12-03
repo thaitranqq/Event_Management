@@ -196,6 +196,15 @@ async function main() {
 
     console.log('Created events:', events.length)
 
+    // Assign staff to the first event
+    await prisma.eventStaff.create({
+        data: {
+            eventId: events[0].id,
+            staffId: staff.id
+        }
+    })
+    console.log(`Assigned staff ${staff.name} to event: ${events[0].title}`)
+
     console.log('Seed completed successfully!')
     console.log('\nLogin credentials:')
     console.log('Admin: admin@fpt.edu.vn / admin123')

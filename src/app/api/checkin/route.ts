@@ -61,10 +61,11 @@ export async function POST(request: NextRequest) {
         // Check if event is active (allow check-in 1 hour before event starts)
         const now = new Date()
         const eventStart = new Date(registration.event.startDate)
-        const eventEnd = new Date(registration.event.endDate)
-
-        // Allow check-in 1 hour (60 minutes) before event starts
+        // Allow check-in 1 hour before event starts
         const checkInWindowStart = new Date(eventStart.getTime() - 60 * 60 * 1000)
+
+        // Allow check-in until 15 minutes after event START (grace period)
+        const checkInWindowEnd = new Date(eventStart.getTime() + 15 * 60 * 1000)
 
         if (now < checkInWindowStart) {
             return NextResponse.json(
@@ -73,9 +74,9 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        if (now > eventEnd) {
+        if (now > checkInWindowEnd) {
             return NextResponse.json(
-                { error: "Event has already ended" },
+                { error: "Check-in window has closed. Check-in is allowed from 1 hour before start until 15 minutes after start." },
                 { status: 400 }
             )
         }
@@ -100,12 +101,32 @@ export async function POST(request: NextRequest) {
             )
         }
 
+        // Check if staff is assigned to this event
+        if (session.user.role === "STAFF") {
+            const assignment = await prisma.eventStaff.findUnique({
+                where: {
+                    eventId_staffId: {
+                        eventId: registration.eventId,
+                        staffId: session.user.id,
+                    },
+                },
+            })
+
+            if (!assignment) {
+                return NextResponse.json(
+                    { error: "You are not assigned to check in for this event" },
+                    { status: 403 }
+                )
+            }
+        }
+
         // Create check-in record
         const checkIn = await prisma.checkIn.create({
             data: {
                 userId: registration.userId,
                 eventId: registration.eventId,
                 method: "QR_CODE",
+                checkedInByStaffId: session.user.id,
             },
             include: {
                 user: {
