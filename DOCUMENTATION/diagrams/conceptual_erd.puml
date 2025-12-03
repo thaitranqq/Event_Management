@@ -1,0 +1,40 @@
+@startuml
+title Conceptual ERD - Event Management
+left to right direction
+
+entity "User" as User
+entity "Event" as Event
+entity "Registration" as Registration
+entity "CheckIn" as CheckIn
+entity "Venue" as Venue
+entity "Speaker" as Speaker
+entity "EventStaff" as EventStaff
+entity "Department" as Department
+entity "Notification" as Notification
+entity "Announcement" as Announcement
+entity "EventReport" as EventReport
+entity "EventFeedback" as EventFeedback
+entity "AuditLog" as AuditLog
+
+' High-level relationships
+User -- Registration
+Event -- Registration
+User -- CheckIn
+Event -- CheckIn
+Event -- Speaker
+Event -- Venue
+Event -- EventStaff
+User -- EventStaff
+User -- Notification
+Event -- Announcement
+Event -- EventReport
+Event -- EventFeedback
+User -- EventFeedback
+User -- AuditLog
+Event -- AuditLog
+Department -- User
+
+note "Conceptual: shows entities and their core relationships" as N1
+end note
+
+@enduml

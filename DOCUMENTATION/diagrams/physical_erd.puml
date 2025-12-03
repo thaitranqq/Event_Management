@@ -1,0 +1,172 @@
+@startuml
+title Physical ERD - Event Management (from Prisma schema)
+left to right direction
+skinparam entity {
+  BackgroundColor<<PK>> #FBEFEF
+}
+
+entity "User" as User {
+  * id : String [PK]
+  --
+  email : String
+  password : String
+  name : String
+  role : UserRole
+  studentId : String?
+  departmentId : String?
+  image : String?
+  createdAt : DateTime
+  updatedAt : DateTime
+  emailVerified : DateTime?
+  otp : String?
+  otpExpires : DateTime?
+}
+
+entity "Speaker" as Speaker {
+  * id : String [PK]
+  name : String
+  bio : Text?
+  title : String?
+  organization : String?
+  photoUrl : String?
+  email : String?
+  phone : String?
+  createdAt : DateTime
+  updatedAt : DateTime
+}
+
+entity "Venue" as Venue {
+  * id : String [PK]
+  name : String
+  address : String
+  capacity : Int
+  facilities : String[]
+  imageUrl : String?
+  createdAt : DateTime
+  updatedAt : DateTime
+}
+
+entity "Event" as Event {
+  * id : String [PK]
+  title : String
+  description : Text
+  category : EventCategory
+  startDate : DateTime
+  endDate : DateTime
+  capacity : Int
+  imageUrl : String?
+  status : EventStatus
+  speakerId : String?
+  venueId : String?
+  createdAt : DateTime
+  updatedAt : DateTime
+}
+
+entity "Registration" as Registration {
+  * id : String [PK]
+  userId : String [FK]
+  eventId : String [FK]
+  status : RegistrationStatus
+  qrCode : String [unique]
+  registeredAt : DateTime
+}
+
+entity "CheckIn" as CheckIn {
+  * id : String [PK]
+  userId : String [FK]
+  eventId : String [FK]
+  method : CheckInMethod
+  checkedInAt : DateTime
+  checkedInByStaffId : String?
+}
+
+entity "EventStaff" as EventStaff {
+  * id : String [PK]
+  eventId : String [FK]
+  staffId : String [FK]
+  createdAt : DateTime
+}
+
+entity "Department" as Department {
+  * id : String [PK]
+  name : String
+  code : String
+  description : Text?
+  createdAt : DateTime
+  updatedAt : DateTime
+}
+
+entity "Notification" as Notification {
+  * id : String [PK]
+  userId : String [FK]
+  type : NotificationType
+  title : String
+  message : Text
+  isRead : Boolean
+  sentAt : DateTime
+}
+
+entity "EventFeedback" as EventFeedback {
+  * id : String [PK]
+  userId : String [FK]
+  eventId : String [FK]
+  rating : Int
+  comment : Text?
+  submittedAt : DateTime
+}
+
+entity "EventReport" as EventReport {
+  * id : String [PK]
+  eventId : String [FK, unique]
+  totalRegistrations : Int
+  totalCheckIns : Int
+  attendanceRate : Float?
+  averageRating : Float?
+  generatedAt : DateTime
+  updatedAt : DateTime
+}
+
+entity "Announcement" as Announcement {
+  * id : String [PK]
+  eventId : String [FK]
+  title : String
+  content : Text
+  priority : AnnouncementPriority
+  publishedAt : DateTime
+}
+
+entity "AuditLog" as AuditLog {
+  * id : String [PK]
+  userId : String?
+  eventId : String?
+  action : String
+  entityType : String
+  entityId : String?
+  details : Json?
+  ipAddress : String?
+  createdAt : DateTime
+}
+
+' Relationships (FKs)
+User ||--o{ Registration : creates
+Event ||--o{ Registration : has
+User ||--o{ CheckIn : performs
+Event ||--o{ CheckIn : has
+User ||--o{ EventStaff : assigned
+Event ||--o{ EventStaff : has
+Event }|..|{ Speaker : may_have
+Event }|..|{ Venue : may_have
+User ||--o{ Notification : receives
+Event ||--o{ Announcement : posts
+Event ||--o{ EventFeedback : receives
+User ||--o{ EventFeedback : writes
+Event ||--o{ EventReport : has
+User ||--o{ AuditLog : generates
+Event ||--o{ AuditLog : related_to
+Department ||--o{ User : contains
+
+note bottom
+  Physical ERD derived from `prisma/schema.prisma` (fields, PK/FK and indexes summarized).
+end note
+
+@enduml
