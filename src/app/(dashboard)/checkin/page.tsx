@@ -98,24 +98,30 @@ export default function CheckInPage() {
                                         {cameraError && (
                                             <div className="p-3 text-sm text-red-600">{cameraError}</div>
                                         )}
-                                        <QrScanner
-                                            delay={300}
-                                            onError={(err: any) => {
-                                                console.error('QR Scanner error', err)
-                                                setCameraError(err?.message || 'Camera error')
-                                                setCameraActive(false)
-                                            }}
-                                            onScan={(data: any) => {
-                                                if (!data) return
-                                                // data may be string or object depending on library
-                                                const code = typeof data === 'string' ? data : data?.text || data?.data || ''
-                                                if (code) {
+                                        <div className="w-full h-full relative overflow-hidden rounded-lg">
+                                            <QrScanner
+                                                delay={300}
+                                                facingMode="environment"
+                                                onError={(err: any) => {
+                                                    console.error('QR Scanner error', err)
+                                                    setCameraError(err?.message || 'Camera error')
                                                     setCameraActive(false)
-                                                    handleScan(code)
-                                                }
-                                            }}
-                                            style={{ width: '100%', height: '100%' }}
-                                        />
+                                                }}
+                                                onScan={(data: any) => {
+                                                    if (!data) return
+                                                    // data may be string or object depending on library
+                                                    const code = typeof data === 'string' ? data : data?.text || data?.data || ''
+                                                    if (code) {
+                                                        setCameraActive(false)
+                                                        handleScan(code)
+                                                    }
+                                                }}
+                                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                            />
+                                            <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                                                <div className="border-2 border-white/70 rounded-md w-3/4 h-3/4 md:w-2/3 md:h-2/3" />
+                                            </div>
+                                        </div>
                                         <div className="mt-2 text-center">
                                             <Button variant="outline" onClick={() => setCameraActive(false)}>Stop camera</Button>
                                         </div>
