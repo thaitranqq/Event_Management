@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
@@ -36,8 +37,9 @@ export function Navbar() {
             <div className="container mx-auto px-4">
                 <div className="flex h-16 items-center justify-between">
                     <div className="flex items-center gap-8">
-                        <Link href="/events" className="text-xl font-bold text-primary">
-                            FPT Events
+                        <Link href="/events" className="flex items-center gap-3">
+                            <Image src="/images/logo.png" alt="FPT University" width={36} height={36} />
+                            <span className="text-xl font-bold text-primary">FPT Events</span>
                         </Link>
                         <div className="hidden md:flex gap-1">
                             {filteredNavItems.map((item) => {

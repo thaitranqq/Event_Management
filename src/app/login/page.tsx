@@ -3,6 +3,7 @@
 import { signIn } from "next-auth/react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -67,6 +68,9 @@ export default function LoginPage() {
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
             <Card className="w-full max-w-md">
                 <CardHeader className="space-y-1">
+                    <div className="flex justify-center">
+                        <Image src="/images/logo.png" alt="FPT University" width={140} height={42} />
+                    </div>
                     <CardTitle className="text-3xl font-bold text-center">
                         FPT Events
                     </CardTitle>

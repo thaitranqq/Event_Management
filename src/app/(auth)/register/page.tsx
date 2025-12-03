@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -96,8 +97,11 @@ export default function RegisterPage() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
             <Card className="w-full max-w-md">
-                <CardHeader className="space-y-1">
-                    <CardTitle className="text-3xl font-bold text-center">
+                <CardHeader className="space-y-1 text-center">
+                    <div className="flex justify-center">
+                        <Image src="/images/logo.png" alt="FPT University" width={160} height={48} />
+                    </div>
+                    <CardTitle className="text-3xl font-bold">
                         Create Account
                     </CardTitle>
                     <CardDescription className="text-center">
