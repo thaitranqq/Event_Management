@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -43,7 +43,7 @@ export default function CreateEventPage() {
     })
 
     // Load speakers and venues
-    useState(() => {
+    useEffect(() => {
         const loadData = async () => {
             try {
                 const [speakersRes, venuesRes] = await Promise.all([
@@ -59,7 +59,7 @@ export default function CreateEventPage() {
             }
         }
         loadData()
-    })
+    }, [])
 
     const handleChange = (
         e: React.ChangeEvent<
