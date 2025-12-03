@@ -89,16 +89,6 @@ UC_ResendOTP ..> UC_VerifyOTP : <<supporting>>
 UC_EventRegister ..> UC_SendNotification : <<notify>>
 UC_CreateEvent ..> UC_SendNotification : <<notify>>
 
-note right of UC_ViewTicket
-  Ticket contains a QR code used for check-in.
-end note
-
-note left
-  Use cases inferred from repository routes and pages:
-  authentication (OTP), event CRUD, registrations,
-  ticket generation, check-ins, staff management, and reports.
-  I added "Resend OTP", "Generate ticket", "Manage registrations",
-  and "Generate event report" to cover API routes found.
-end note
+// notes removed per request
 
 @enduml

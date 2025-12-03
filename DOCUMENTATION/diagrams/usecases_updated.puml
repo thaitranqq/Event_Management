@@ -91,10 +91,6 @@ UC_AdminResetStaff .> UC_Notify : <<notify>>
 UC_Register .> UC_Notify : <<notify>>
 UC_CreateEvent .> UC_Notify : <<notify>>
 
-note right
-  This updated diagram includes password flows (forgot/reset/change),
-  admin staff password reset (generates a temporary password), and
-  notification/reporting actions inferred from the codebase.
-end note
+// notes removed per request
 
 @enduml
