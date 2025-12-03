@@ -122,10 +122,10 @@ export default function CheckInPage() {
                             {result && (
                                 <div
                                     className={`p-4 rounded-lg ${result.type === "success"
-                                            ? "bg-green-50 text-green-800"
-                                            : result.type === "warning"
-                                                ? "bg-yellow-50 text-yellow-800"
-                                                : "bg-red-50 text-red-800"
+                                        ? "bg-green-50 text-green-800"
+                                        : result.type === "warning"
+                                            ? "bg-yellow-50 text-yellow-800"
+                                            : "bg-red-50 text-red-800"
                                         }`}
                                 >
                                     <div className="flex items-center gap-3">
@@ -200,7 +200,7 @@ export default function CheckInPage() {
                         <CardContent>
                             <div className="space-y-3">
                                 <div className="flex justify-between items-center">
-                                    <span className="text-sm text-gray-600">Today's Check-ins</span>
+                                    <span className="text-sm text-gray-600">{`Today's Check-ins`}</span>
                                     <span className="text-2xl font-bold text-primary">
                                         {recentCheckIns.length}
                                     </span>
