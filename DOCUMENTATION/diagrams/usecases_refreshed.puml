@@ -44,6 +44,15 @@ rectangle "Check-in & Attendance" {
 rectangle "Reports & Notifications" {
   usecase "View reports overview" as UC_Reports
   usecase "Generate event report" as UC_GenerateReport
+}
+
+rectangle "Staff & Admin" {
+  usecase "Admin reset staff password (generate temp)" as UC_AdminResetStaff
+}
+
+rectangle "Reports & Notifications" {
+  usecase "View reports overview" as UC_Reports
+  usecase "Generate event report" as UC_GenerateReport
   usecase "Send notification / email" as UC_Notify
 }
 
@@ -69,6 +78,7 @@ Organizer --> UC_ManageStaff
 Organizer --> UC_AssignStaff
 Organizer --> UC_Reports
 Organizer --> UC_GenerateReport
+Organizer --> UC_AdminResetStaff
 
 Staff --> UC_CheckinQR
 Staff --> UC_CheckinManual

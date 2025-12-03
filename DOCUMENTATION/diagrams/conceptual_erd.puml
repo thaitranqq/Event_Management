@@ -1,40 +1,117 @@
 @startuml
 title Conceptual ERD - Event Management
-left to right direction
+top to bottom direction
 
-' Simplified conceptual ERD with explicit associations
-entity User
-entity Event
-entity Registration
-entity CheckIn
-entity Venue
-entity Speaker
-entity EventStaff
-entity Department
-entity Notification
-entity Announcement
-entity EventReport
-entity EventFeedback
-entity AuditLog
+' Conceptual ERD with key attributes (concise, similar style to provided sample)
+entity "Event" as Event {
+	* id
+	--
+	title
+	startDate
+	endDate
+	status
+}
 
-User ||--o{ Registration : registers
+entity "Venue" as Venue {
+	* id
+	--
+	name
+	address
+}
+
+entity "Speaker" as Speaker {
+	* id
+	--
+	name
+	title
+}
+
+entity "Registration" as Registration {
+	* id
+	--
+	userId
+	eventId
+	status
+}
+
+entity "User" as User {
+	* id
+	--
+	email
+	name
+	role
+}
+
+entity "EventStaff" as EventStaff {
+	* id
+	--
+	eventId
+	staffId
+}
+
+entity "CheckIn" as CheckIn {
+	* id
+	--
+	userId
+	eventId
+	method
+	checkedInAt
+}
+
+entity "Notification" as Notification {
+	* id
+	--
+	userId
+	type
+}
+
+entity "Announcement" as Announcement {
+	* id
+	--
+	eventId
+	title
+}
+
+entity "EventFeedback" as EventFeedback {
+	* id
+	--
+	userId
+	eventId
+	rating
+}
+
+entity "EventReport" as EventReport {
+	* id
+	--
+	eventId
+	totalRegistrations
+}
+
+entity "AuditLog" as AuditLog {
+	* id
+	--
+	userId
+	action
+	createdAt
+}
+
+' Relationships
+ ' Relationships
 Event ||--o{ Registration : has
-User ||--o{ CheckIn : checks_in
-Event ||--o{ CheckIn : has
+User ||--o{ Registration : registers
 Event }|..|{ Speaker : references
 Event }|..|{ Venue : located_at
 Event ||--o{ EventStaff : assigned
 User ||--o{ EventStaff : is_staff
-User ||--o{ Notification : receives
+Event ||--o{ CheckIn : has
+User ||--o{ CheckIn : checks_in
 Event ||--o{ Announcement : announces
+User ||--o{ Notification : receives
 Event ||--o{ EventFeedback : receives
 User ||--o{ EventFeedback : writes
+Event ||--o{ EventReport : has
 User ||--o{ AuditLog : generates
 Event ||--o{ AuditLog : related_to
 Department ||--o{ User : contains
-
-note bottom
-	Conceptual: shows entities and their core relationships (simplified).
-end note
 
 @enduml
