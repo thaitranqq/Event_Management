@@ -13,7 +13,11 @@ async function main() {
 
     const admin = await prisma.user.upsert({
         where: { email: 'admin@fpt.edu.vn' },
-        update: {},
+        update: {
+            emailVerified: new Date(),
+            otp: null,
+            otpExpires: null,
+        },
         create: {
             email: 'admin@fpt.edu.vn',
             password: adminPassword,
@@ -25,7 +29,11 @@ async function main() {
 
     const staff = await prisma.user.upsert({
         where: { email: 'staff@fpt.edu.vn' },
-        update: {},
+        update: {
+            emailVerified: new Date(),
+            otp: null,
+            otpExpires: null,
+        },
         create: {
             email: 'staff@fpt.edu.vn',
             password: staffPassword,
@@ -37,7 +45,11 @@ async function main() {
 
     const student = await prisma.user.upsert({
         where: { email: 'student@fpt.edu.vn' },
-        update: {},
+        update: {
+            emailVerified: new Date(),
+            otp: null,
+            otpExpires: null,
+        },
         create: {
             email: 'student@fpt.edu.vn',
             password: studentPassword,
