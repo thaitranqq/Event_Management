@@ -82,9 +82,4 @@ UC_Forgot ..> UC_Reset : <<extend>>
 UC_AdminResetStaff ..> UC_Notify : <<extend>>
 UC_CreateEvent ..> UC_Notify : <<extend>>
 
-note bottom
-  Legend: <<include>> = mandatory supporting behaviour
-         <<extend>>  = optional/conditional behaviour
-end note
-
 @enduml

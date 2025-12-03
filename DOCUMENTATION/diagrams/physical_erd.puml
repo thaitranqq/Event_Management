@@ -165,8 +165,4 @@ User ||--o{ AuditLog : generates
 Event ||--o{ AuditLog : related_to
 Department ||--o{ User : contains
 
-note bottom
-  Physical ERD derived from `prisma/schema.prisma` (fields, PK/FK and indexes summarized).
-end note
-
 @enduml

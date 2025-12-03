@@ -14,11 +14,6 @@ NextApp --> Prisma : ORM calls
 Prisma --> DB : SQL
 NextApp --> External : Auth / Email
 
-note right of NextApp
-  Hosts server-rendered pages
-  and API routes
-end note
-
 @enduml
 @startuml
 title Event Management - Context Diagram
@@ -35,10 +30,5 @@ Client --> NextApp : HTTPS
 NextApp --> Prisma : ORM calls
 Prisma --> DB : SQL
 NextApp --> External : Auth / Email
-
-note right of NextApp
-  Hosts server-rendered pages
-  and API routes
-end note
 
 @enduml

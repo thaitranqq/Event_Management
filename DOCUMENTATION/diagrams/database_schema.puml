@@ -89,19 +89,4 @@ Event ||--o{ CheckIn : "checkins"
 Speaker ||--o{ Event : "events"
 Venue ||--o{ Event : "events"
 
-note right of Registration
-  @@unique(userId, eventId)
-  indexes: userId, eventId, status
-end note
-
-note right of CheckIn
-  @@unique(userId, eventId)
-  indexes: eventId, checkedInAt
-end note
-
-note bottom
-  Enums: UserRole, EventStatus, EventCategory, RegistrationStatus, CheckInMethod
-  See prisma/schema.prisma for details.
-end note
-
 @enduml
