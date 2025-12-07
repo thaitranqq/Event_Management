@@ -55,7 +55,6 @@ export default function CheckInPage() {
                     toast({
                         title: 'Already checked in',
                         description: `Already checked in at ${new Date(data.checkedInAt).toLocaleString()}`,
-                        variant: 'warning',
                     })
                 setResult({
                     type: "warning",
