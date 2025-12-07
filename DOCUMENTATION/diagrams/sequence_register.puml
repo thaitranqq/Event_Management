@@ -1,0 +1,26 @@
+@startuml
+actor Student
+participant "Frontend (Browser)" as Frontend
+participant "Registrations API" as API
+database "DB (Prisma)" as DB
+participant "Notification Service" as Notify
+participant "Ticket Generator" as Ticket
+
+Student -> Frontend: Click "Register" (eventId)
+Frontend -> API: POST /api/registrations { eventId }
+API -> DB: Check event availability (startDate, capacity, status)
+alt event not available
+  DB --> API: Not available
+  API --> Frontend: 400/409 error
+  Frontend --> Student: Show error
+else available
+  API -> DB: Create registration record (userId, eventId, qrCode)
+  DB --> API: registration(created)
+  API -> Ticket: generate QR for registration
+  Ticket --> API: qrPayload / image
+  API -> Notify: notifyEventRegistered(userId, eventId)
+  Notify --> API: notification result
+  API --> Frontend: 201 registration + ticket
+  Frontend --> Student: Show ticket / QR
+end
+@enduml

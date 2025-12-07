@@ -1,0 +1,33 @@
+@startuml
+actor Staff
+participant "Scanner UI" as UI
+participant "Check-in API" as API
+database "DB (Prisma)" as DB
+participant "Notification Service" as Notify
+
+Staff -> UI: Scan QR (qrCode)
+UI -> API: POST /api/checkin { qrCode }
+API -> DB: Find registration by qrCode (include event, user)
+alt registration not found
+  DB --> API: null
+  API --> UI: 404 Invalid QR
+  UI --> Staff: Show "Invalid QR code"
+else registration found
+  DB --> API: registration
+  API -> DB: Check existing check-in for user/event
+  alt already checked-in
+    DB --> API: existingCheckIn
+    API --> UI: 409 Already checked-in + timestamp
+    UI --> Staff: Show "Already checked in"
+  else not checked-in
+    API -> DB: Create check-in record (userId,eventId,checkedInByStaffId)
+    DB --> API: checkInRecord
+    API -> Notify: notifyCheckInSuccess(userId, eventId)
+    par notify (non-blocking)
+      Notify --> API: result / log
+    end
+    API --> UI: 200 success + checkIn
+    UI --> Staff: Show success, attendee details
+  end
+end
+@enduml

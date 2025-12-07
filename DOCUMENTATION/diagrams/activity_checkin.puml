@@ -1,0 +1,27 @@
+@startuml
+start
+:Staff opens Check-in page (QR scanner);
+:Scan QR code (or manual input);
+:Scanner UI -> Check-in API: POST /api/checkin { qrCode }
+partition Server {
+  :Find registration by qrCode;
+  if (registration found?) then (no)
+    :Return "Invalid QR code";
+  else (yes)
+    if (registration.status == CONFIRMED?) then (no)
+      :Return "Registration not confirmed";
+    else
+      if (already checked-in?) then (yes)
+        :Return "Already checked-in" with timestamp;
+      else (no)
+        :Create check-in record in DB (checkedInAt, staffId);
+        :Update attendance counters / reports;
+        :Attempt to send notification to attendee (in-app/email);
+      endif
+    endif
+  endif
+}
+:Display result on scanner UI (success/warning/error);
+:Append entry to recent check-ins list (UI);
+stop
+@enduml

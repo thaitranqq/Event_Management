@@ -1,0 +1,29 @@
+@startuml
+|Student|
+start
+:Browse events (list view);
+:Select event -> View event details;
+if (User logged in?) then (no)
+  :Open login/register flow (OTP or credentials);
+  :Complete authentication;
+endif
+:Click "Register" on event page;
+:Frontend -> API: POST /api/registrations { eventId }
+partition Server {
+  :Validate event capacity and status;
+  if (Available and PUBLISHED?) then (yes)
+    :Create registration (status=CONFIRMED) in DB;
+    :Generate QR code / ticket;
+    :Persist QR to registration;
+  else (no)
+    :Return error (fully booked or closed);
+  endif
+}
+if (registration created?) then (yes)
+  :Send confirmation notification to user;
+  :Display ticket / QR to user (View/Download);
+else (no)
+  :Show error to user;
+endif
+stop
+@enduml
